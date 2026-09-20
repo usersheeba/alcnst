@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #FAF9F6;
+  --paper: #FFFFFF;
+  --panel: #FFFFFF;
+  --ink: #1A1A1A;
+  --graphite: #737067;
+  --rule: #E8E6E1;
+  --editor-red: #9E3A34;
+  --editor-red-hover: #822F2A;
+  --caret-color: #9E3A34;
+  --outline-color: #8B5CF6;
+  
+  --ui-sans: 'Inter', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --screenplay-font: 'Courier Prime', 'Courier New', Courier, monospace;
+  --prose-font: 'PT Serif', Georgia, serif;
+
+  --radius-ui: 6px;
+  --radius-modal: 10px;
+}
+
+.dark, [data-theme="dark"] {
+  --canvas: #0E0D0C;
+  --paper: #1A1918;
+  --panel: #141312;
+  --ink: #EDEBE6;
+  --graphite: #A19D94;
+  --rule: #2C2A27;
+  --editor-red: #E0736C;
+  --editor-red-hover: #C55A53;
+  --caret-color: #E0736C;
+  --outline-color: #C084FC;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--ui-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Screenplay Mode */
+.screenplay-font {
+  font-family: var(--screenplay-font);
+  font-size: 12pt;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.screenplay-paper textarea {
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--caret-color);
+}
+
+textarea {
+  caret-color: var(--caret-color);
+}
+
+/* Prose Mode */
+.prose-font {
+  font-family: var(--prose-font);
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.prose-canvas-container {
+  max-width: 640px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Utility classes for the warm & dark palette system */
+.bg-canvas { background-color: var(--canvas); }
+.bg-paper { background-color: var(--paper); }
+.bg-panel { background-color: var(--panel); }
+.text-ink { color: var(--ink); }
+.text-graphite { color: var(--graphite); }
+.border-rule { border-color: var(--rule); }
+.text-editor-red { color: var(--editor-red); }
+.bg-editor-red { background-color: var(--editor-red); }
+.hover\:bg-editor-red-hover:hover { background-color: var(--editor-red-hover); }
+
+
+
