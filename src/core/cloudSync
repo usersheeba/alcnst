@@ -1,0 +1,107 @@
+/**
+ * Auto-Save & Cloud Sync Engine for Screenplay Documents.
+ */
+
+import { ScreenplayDocument, ScreenplayNode } from '../types';
+import { saveDocument } from './persistence';
+import { htmlToFountain } from './rich_text';
+
+export interface CloudScreenplaySchema {
+  id: string;
+  title: string;
+  nodes: ScreenplayNode[];
+  updated_at: string;
+  created_at: string;
+}
+
+export type SyncStatus = 'saving' | 'saved' | 'offline';
+
+const CLOUD_STORAGE_PREFIX = 'cloud_screenplay_doc_';
+const LAST_DOC_ID_KEY = 'alcnst_last_edited_doc_id';
+
+/**
+ * Format ScreenplayDocument into Cloud Storage Schema
+ */
+export function formatCloudSchema(doc: ScreenplayDocument): CloudScreenplaySchema {
+  return {
+    id: doc.id,
+    title: doc.title,
+    nodes: doc.nodes,
+    updated_at: new Date(doc.updatedAt || Date.now()).toISOString(),
+    created_at: new Date(doc.createdAt || Date.now()).toISOString(),
+  };
+}
+
+/**
+ * Save document to LocalStorage backup for instant local recovery
+ */
+export function saveToLocalStorage(doc: ScreenplayDocument): void {
+  try {
+    const cloudPayload = formatCloudSchema(doc);
+    localStorage.setItem(LAST_DOC_ID_KEY, doc.id);
+    localStorage.setItem(`${CLOUD_STORAGE_PREFIX}${doc.id}`, JSON.stringify(cloudPayload));
+  } catch (err) {
+    console.warn('LocalStorage auto-save fallback error:', err);
+  }
+}
+
+/**
+ * Retrieve last edited document ID from localStorage
+ */
+export function getLastEditedDocId(): string | null {
+  try {
+    return localStorage.getItem(LAST_DOC_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Simulate/Execute Cloud Storage API Sync
+ */
+export async function syncToCloud(doc: ScreenplayDocument): Promise<boolean> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return false; // Offline
+  }
+
+  try {
+    const payload = formatCloudSchema(doc);
+    // Persist to Cloud Storage partition
+    localStorage.setItem(`cloud_server_store_${doc.id}`, JSON.stringify(payload));
+    
+    // Simulate brief network roundtrip for cloud sync
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return true;
+  } catch (err) {
+    console.warn('Cloud Sync API error:', err);
+    return false;
+  }
+}
+
+/**
+ * Download a backup file (.fountain or .json) on manual save
+ */
+export function downloadBackupFile(doc: ScreenplayDocument, format: 'fountain' | 'json' = 'fountain'): void {
+  const safeFilename = doc.title.toLowerCase().replace(/[^a-z0-9]/g, '_') || 'screenplay';
+  let blob: Blob;
+  let filename: string;
+
+  if (format === 'fountain') {
+    const fountainText = doc.nodes.map((n) => htmlToFountain(n.text)).join('\n\n');
+    blob = new Blob([fountainText], { type: 'text/plain;charset=utf-8' });
+    filename = `${safeFilename}.fountain`;
+  } else {
+    const payload = formatCloudSchema(doc);
+    blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    filename = `${safeFilename}.json`;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
