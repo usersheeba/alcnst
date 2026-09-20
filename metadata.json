@@ -1,0 +1,8 @@
+{
+  "name": "Remix alcnst studio",
+  "description": "A cloud-based writing application combining binder project organization, semantic screenplay editing, and prose writing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
